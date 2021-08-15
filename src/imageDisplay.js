@@ -141,19 +141,31 @@ const ImageDisplay = () => {
                       {boxes.length ? boxes.length : 0}
                     </p>
                   </Card>
-                  <Card style={{ width: 300 }}>
+                  <Card
+                    style={{
+                      width: 300,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
                     <h2 style={{ textAlign: "center" }}>Toggle Detections</h2>
-                    <Switch
-                      disabled={detected}
-                      checkedChildren="On"
-                      unCheckedChildren="Off"
-                      onChange={handleSwitch}
-                      defaultChecked
-                    />
+                    <div style={{ marginLeft: "40%" }}>
+                      <Switch
+                        disabled={detected}
+                        checkedChildren="On"
+                        unCheckedChildren="Off"
+                        onChange={handleSwitch}
+                        defaultChecked
+                      />
+                    </div>
                   </Card>
-                  <Card style={{ width: 300 }}>
+                  <Card>
                     <h2 style={{ textAlign: "center" }}>Color Picker</h2>
-                    <CirclePicker onChange={handlePick} />
+                    <div>
+                      <CirclePicker onChange={handlePick} />
+                    </div>
                   </Card>
                 </div>
               </Col>
