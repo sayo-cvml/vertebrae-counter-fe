@@ -38,7 +38,6 @@ const ImageDisplay = () => {
     setLoading(true);
     const data = new FormData();
     data.append("file", imageObject);
-    setDetected(false);
     client
       .post("https://vertebrae-counter-44meqtbvbq-uc.a.run.app/detect/", data)
       .then((response) => {
