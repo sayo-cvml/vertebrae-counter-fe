@@ -1,28 +1,29 @@
 import { useState, useEffect } from "react";
 import Boundingbox from "react-bounding-box";
 import client from "./Client";
-import { Menu, Layout, Spin, Button, Row, Col, Card } from "antd";
+import { Menu, Layout, Spin, Button, Row, Col, Card, Switch } from "antd";
 import "antd/dist/antd.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import { DatePicker, Space } from "antd";
+import { CirclePicker } from "react-color";
+import boxOptions from "./options";
 
-// const { RangePicker } = DatePicker;
 const { SubMenu } = Menu;
-const { Header, Content, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 const ImageDisplay = () => {
   const [image, setImage] = useState(null);
+  const [options, setOptions] = useState(boxOptions);
   const [selected, setSelected] = useState(false);
   const [imageObject, setImageObject] = useState();
   const [boxes, setBoxes] = useState([]);
+  const [display, setDisplay] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [detected, setDetected] = useState(true);
 
   useEffect(() => {
     if (image) {
-      console.log(image);
       setImage(image);
     }
-    console.log("None");
   }, [image]);
 
   const handleSelect = (e) => {
@@ -30,6 +31,25 @@ const ImageDisplay = () => {
     setImageObject(e.target.files[0]);
     setSelected(true);
     setImage(URL.createObjectURL(e.target.files[0]));
+  };
+
+  const handleSwitch = (value) => {
+    if (value) {
+      setDisplay([...boxes]);
+      return;
+    }
+    setDisplay([]);
+  };
+
+  const handlePick = (object) => {
+    const rgb = object.rgb;
+    const colorString = `rgba(${rgb.r},${rgb.g},${rgb.b},${rgb.a})`;
+    const colors = {
+      normal: colorString,
+      selected: colorString,
+      unselected: colorString,
+    };
+    setOptions({ ...options, colors });
   };
 
   const handleSubmit = (event) => {
@@ -41,7 +61,6 @@ const ImageDisplay = () => {
     client
       .post("https://vertebrae-counter-44meqtbvbq-uc.a.run.app/detect/", data)
       .then((response) => {
-        console.log(response);
         if (response.status === 200) {
           const predictions = response.data;
           const detections = predictions.map((item) => {
@@ -52,9 +71,10 @@ const ImageDisplay = () => {
             const h = box[3];
             return [x, y, w, h];
           });
-          console.log(detections);
           setImage(image);
           setBoxes(detections);
+          setDisplay(detections);
+          setDetected(false);
           setLoading(false);
         }
       })
@@ -95,16 +115,24 @@ const ImageDisplay = () => {
                   </Button>
                   <input type="file" onChange={handleSelect} />
                   <Spin spinning={loading} tip="Counting vertebrae...">
-                    {selected && <Boundingbox image={image} boxes={boxes} />}
+                    {selected && (
+                      <Boundingbox
+                        image={image}
+                        boxes={display}
+                        options={options}
+                      />
+                    )}
                   </Spin>
                 </div>
               </Col>
               <Col span={8}>
                 <div
                   style={{
+                    height: "100vh",
                     display: "flex",
-                    justifyContent: "center",
+                    justifyContent: "space-evenly",
                     alignItems: "center",
+                    flexDirection: "column",
                   }}
                 >
                   <Card style={{ width: 300 }}>
@@ -112,6 +140,20 @@ const ImageDisplay = () => {
                     <p style={{ fontSize: "5rem", textAlign: "center" }}>
                       {boxes.length ? boxes.length : 0}
                     </p>
+                  </Card>
+                  <Card style={{ width: 300 }}>
+                    <h2 style={{ textAlign: "center" }}>Toggle Detections</h2>
+                    <Switch
+                      disabled={detected}
+                      checkedChildren="On"
+                      unCheckedChildren="Off"
+                      onChange={handleSwitch}
+                      defaultChecked
+                    />
+                  </Card>
+                  <Card style={{ width: 300 }}>
+                    <h2 style={{ textAlign: "center" }}>Color Picker</h2>
+                    <CirclePicker onChange={handlePick} />
                   </Card>
                 </div>
               </Col>
