@@ -14,7 +14,6 @@ const ImageDisplay = () => {
   const [image, setImage] = useState(null);
   const [selected, setSelected] = useState(false);
   const [imageObject, setImageObject] = useState();
-  const [detected, setDetected] = useState(true);
   const [boxes, setBoxes] = useState([]);
   const [loading, setLoading] = useState(false);
 
